@@ -1,0 +1,449 @@
+% references.bib
+% Bibliography for: "Preprocessing as an Experimental Variable: A Reproducibility Study
+% and Computational Benchmark of EEG Preprocessing Pipelines on the AHEPA Dementia
+% Dataset (OpenNeuro ds004504)"
+%
+% Every entry below corresponds to a source that was actually retrieved and read during
+% the literature review, or to a canonical method/software citation for a component that
+% is actually used in the code. No entry is included for padding.
+
+% =====================================================================================
+% PRIMARY DATASET AND BENCHMARK
+% =====================================================================================
+
+@article{miltiadous2023dataset,
+  author  = {Miltiadous, Andreas and Tzimourta, Katerina D. and Afrantou, Theodora and
+             Ioannidis, Panagiotis and Grigoriadis, Nikolaos and Tsalikakis, Dimitrios G.
+             and Angelidis, Pantelis and Tsipouras, Markos G. and Glavas, Euripidis and
+             Giannakeas, Nikolaos and Tzallas, Alexandros T.},
+  title   = {A Dataset of Scalp {EEG} Recordings of {Alzheimer's} Disease,
+             Frontotemporal Dementia and Healthy Subjects from Routine {EEG}},
+  journal = {Data},
+  volume  = {8},
+  number  = {6},
+  pages   = {95},
+  year    = {2023},
+  doi     = {10.3390/data8060095},
+  note    = {Data descriptor for OpenNeuro ds004504; source of the published
+             preprocessing description reproduced as Pipeline A}
+}
+
+@misc{miltiadous2024openneuro,
+  author       = {Miltiadous, Andreas and Tzimourta, Katerina D. and Afrantou, Theodora
+                  and Ioannidis, Panagiotis and Grigoriadis, Nikolaos and
+                  Tsalikakis, Dimitrios G. and Angelidis, Pantelis and
+                  Tsipouras, Markos G. and Glavas, Euripidis and
+                  Giannakeas, Nikolaos and Tzallas, Alexandros T.},
+  title        = {A dataset of {EEG} recordings from: {Alzheimer's} disease,
+                  Frontotemporal dementia and Healthy subjects},
+  howpublished = {OpenNeuro},
+  year         = {2024},
+  doi          = {10.18112/openneuro.ds004504},
+  note         = {Dataset, CC0 licence. Accession ds004504}
+}
+
+@article{miltiadous2026benchmark,
+  author  = {Miltiadous, Andreas and Ntetska, Anna and Aspiotis, Vasileios and
+             Moustakli, Eleni and Tsipouras, Markos G. and Tzallas, Alexandros T. and
+             Giannakeas, Nikolaos and Glavas, Euripidis and Angelidis, Pantelis and
+             Tzimourta, Katerina D.},
+  title   = {The {AHEPA} {EEG} benchmark: setting the standard for machine learning in
+             dementia diagnosis, a scoping review},
+  journal = {Cognitive Neurodynamics},
+  volume  = {20},
+  number  = {1},
+  pages   = {95},
+  year    = {2026},
+  doi     = {10.1007/s11571-026-10464-w},
+  note    = {Scoping review of 46 studies on ds004504. Source of the Validity-1
+             baselines (AD/CN 82.11\%, FTD/CN 75.18\%, AD/FTD 71.44\%, 3-class 69.99\%),
+             of the rigour-inflation estimates, and of criterion C4 on preprocessing
+             transparency. States that no re-analysis of raw datasets was performed}
+}
+
+@article{miltiadous2023dicenet,
+  author  = {Miltiadous, Andreas and Gionanidis, Emmanouil and
+             Tzimourta, Katerina D. and Giannakeas, Nikolaos and
+             Tzallas, Alexandros T.},
+  title   = {{DICE-Net}: A Novel Convolution-Transformer Architecture for {Alzheimer}
+             Detection in {EEG} Signals},
+  journal = {IEEE Access},
+  volume  = {11},
+  pages   = {71840--71858},
+  year    = {2023},
+  doi     = {10.1109/ACCESS.2023.3294618},
+  note    = {First modelling study on ds004504}
+}
+
+@article{miltiadous2021validation,
+  author  = {Miltiadous, Andreas and Tzimourta, Katerina D. and
+             Giannakeas, Nikolaos and Tsipouras, Markos G. and
+             Afrantou, Theodora and Ioannidis, Panagiotis and
+             Tzallas, Alexandros T.},
+  title   = {{Alzheimer's} Disease and Frontotemporal Dementia: A Robust Classification
+             Method of {EEG} Signals and a Comparison of Validation Methods},
+  journal = {Diagnostics},
+  volume  = {11},
+  number  = {8},
+  pages   = {1437},
+  year    = {2021},
+  doi     = {10.3390/diagnostics11081437}
+}
+
+% =====================================================================================
+% PREPROCESSING METHODOLOGY -- THE CENTRAL DEBATE
+% =====================================================================================
+
+@article{delorme2023better,
+  author  = {Delorme, Arnaud},
+  title   = {{EEG} is better left alone},
+  journal = {Scientific Reports},
+  volume  = {13},
+  pages   = {2372},
+  year    = {2023},
+  doi     = {10.1038/s41598-023-27528-0},
+  note    = {Primary literature justification for Pipeline B. Finds that beyond
+             high-pass filtering and bad-channel interpolation, automated corrections
+             did not reliably improve data quality. Endpoint was ERP detectability in
+             task data, not resting-state classification}
+}
+
+@article{decheveigne2023rebuttal,
+  author  = {de Cheveign{\'e}, Alain},
+  title   = {Is {EEG} better left alone?},
+  journal = {bioRxiv},
+  year    = {2023},
+  doi     = {10.1101/2023.06.19.545602},
+  note    = {Rebuttal to Delorme (2023). Argues the significant-channel-count metric is
+             of limited applicability and that a cleaning tool's value depends on whether
+             its target artifact is present. This unresolved disagreement is why the
+             present study measures rather than assumes}
+}
+
+@patent{kothe2016asr,
+  author = {Kothe, Christian Andreas Edgar and Jung, Tzyy-Ping},
+  title  = {Artifact removal techniques with signal reconstruction},
+  year   = {2016},
+  number = {US Patent App. 14/895,440},
+  note   = {Original description of Artifact Subspace Reconstruction}
+}
+
+@article{chang2020asr,
+  author  = {Chang, Chi-Yuan and Hsu, Sheng-Hsiou and
+             Pion-Tonachini, Luca and Jung, Tzyy-Ping},
+  title   = {Evaluation of Artifact Subspace Reconstruction for Automatic Artifact
+             Components Removal in Multi-Channel {EEG} Recordings},
+  journal = {IEEE Transactions on Biomedical Engineering},
+  volume  = {67},
+  number  = {4},
+  pages   = {1114--1121},
+  year    = {2020},
+  doi     = {10.1109/TBME.2019.2930186},
+  note    = {Empirical evaluation of ASR cutoff parameters}
+}
+
+@article{piontonachini2019iclabel,
+  author  = {Pion-Tonachini, Luca and Kreutz-Delgado, Ken and Makeig, Scott},
+  title   = {{ICLabel}: An automated electroencephalographic independent component
+             classifier, dataset, and website},
+  journal = {NeuroImage},
+  volume  = {198},
+  pages   = {181--197},
+  year    = {2019},
+  doi     = {10.1016/j.neuroimage.2019.05.026},
+  note    = {Defines the seven IC classes. Note that no "jaw" class exists, and that the
+             classifier was trained on average-referenced 1--100 Hz data -- both
+             documented as uncertainties in the Pipeline A reproduction}
+}
+
+@article{bigdelyshamlo2015prep,
+  author  = {Bigdely-Shamlo, Nima and Mullen, Tim and Kothe, Christian and
+             Su, Kyung-Min and Robbins, Kay A.},
+  title   = {The {PREP} pipeline: standardized preprocessing for large-scale {EEG}
+             analysis},
+  journal = {Frontiers in Neuroinformatics},
+  volume  = {9},
+  pages   = {16},
+  year    = {2015},
+  doi     = {10.3389/fninf.2015.00016},
+  note    = {Source of the robust bad-channel detection strategy adapted in Pipeline B}
+}
+
+@article{bell1995infomax,
+  author  = {Bell, Anthony J. and Sejnowski, Terrence J.},
+  title   = {An information-maximization approach to blind separation and blind
+             deconvolution},
+  journal = {Neural Computation},
+  volume  = {7},
+  number  = {6},
+  pages   = {1129--1159},
+  year    = {1995},
+  doi     = {10.1162/neco.1995.7.6.1129}
+}
+
+@article{lee1999extended,
+  author  = {Lee, Te-Won and Girolami, Mark and Sejnowski, Terrence J.},
+  title   = {Independent component analysis using an extended infomax algorithm for
+             mixed subgaussian and supergaussian sources},
+  journal = {Neural Computation},
+  volume  = {11},
+  number  = {2},
+  pages   = {417--441},
+  year    = {1999},
+  doi     = {10.1162/089976699300016719},
+  note    = {The extended-Infomax algorithm used for ICA in Pipeline A}
+}
+
+@article{winkler2011mara,
+  author  = {Winkler, Irene and Haufe, Stefan and Tangermann, Michael},
+  title   = {Automatic classification of artifactual {ICA}-components for artifact
+             removal in {EEG} signals},
+  journal = {Behavioral and Brain Functions},
+  volume  = {7},
+  pages   = {30},
+  year    = {2011},
+  doi     = {10.1186/1744-9081-7-30},
+  note    = {MARA -- considered and rejected as Pipeline B because it retains the
+             expensive ICA stage}
+}
+
+@article{jas2017autoreject,
+  author  = {Jas, Mainak and Engemann, Denis A. and Bekhti, Yousra and
+             Raimondo, Federico and Gramfort, Alexandre},
+  title   = {Autoreject: Automated artifact rejection for {MEG} and {EEG} data},
+  journal = {NeuroImage},
+  volume  = {159},
+  pages   = {417--429},
+  year    = {2017},
+  doi     = {10.1016/j.neuroimage.2017.06.030}
+}
+
+@article{mammone2012wavelet,
+  author  = {Mammone, Nadia and La Foresta, Fabio and Morabito, Francesco C.},
+  title   = {Automatic Artifact Rejection From Multichannel Scalp {EEG} by Wavelet
+             {ICA}},
+  journal = {IEEE Sensors Journal},
+  volume  = {12},
+  number  = {3},
+  pages   = {533--542},
+  year    = {2012},
+  doi     = {10.1109/JSEN.2011.2115236}
+}
+
+@article{blum2019riemannian,
+  author  = {Blum, Sarah and Jacobsen, Nadine S. J. and Bleichner, Martin G. and
+             Debener, Stefan},
+  title   = {A {Riemannian} Modification of Artifact Subspace Reconstruction for {EEG}
+             Artifact Handling},
+  journal = {Frontiers in Human Neuroscience},
+  volume  = {13},
+  pages   = {141},
+  year    = {2019},
+  doi     = {10.3389/fnhum.2019.00141},
+  note    = {Considered as an alternative; excluded for lack of a mature
+             Colab-ready implementation}
+}
+
+@article{callan2024shredding,
+  author  = {Callan, Daniel E. and Jia, Tong and Cody, Trevor},
+  title   = {Shredding artifacts: extracting brain activity in {EEG} from extreme
+             artifacts during skateboarding using {ASR} and {ICA}},
+  journal = {Frontiers in Neuroergonomics},
+  volume  = {5},
+  pages   = {1358660},
+  year    = {2024},
+  doi     = {10.3389/fnrgo.2024.1358660},
+  note    = {Counterweight to Delorme (2023): under extreme artifact load, ASR+ICA
+             clearly outperformed minimal cleaning}
+}
+
+@article{li2022mneicalabel,
+  author  = {Li, Adam and Feitelberg, Jacob and Saini, Anand Prakash and
+             H{\"o}chenberger, Richard and Scheltienne, Mathieu},
+  title   = {{MNE-ICALabel}: Automatically annotating {ICA} components with {ICLabel}
+             in {Python}},
+  journal = {Journal of Open Source Software},
+  volume  = {7},
+  number  = {76},
+  pages   = {4484},
+  year    = {2022},
+  doi     = {10.21105/joss.04484},
+  note    = {Software actually used for IC classification in Pipeline A}
+}
+
+% =====================================================================================
+% STATISTICAL AND MACHINE-LEARNING METHODOLOGY
+% =====================================================================================
+
+@article{nadeau2003inference,
+  author  = {Nadeau, Claude and Bengio, Yoshua},
+  title   = {Inference for the Generalization Error},
+  journal = {Machine Learning},
+  volume  = {52},
+  number  = {3},
+  pages   = {239--281},
+  year    = {2003},
+  doi     = {10.1023/A:1024068626366},
+  note    = {Source of the corrected resampled t-test used as a supporting test.
+             The variance correction accounts for overlap between cross-validation
+             training sets}
+}
+
+@article{dietterich1998approximate,
+  author  = {Dietterich, Thomas G.},
+  title   = {Approximate Statistical Tests for Comparing Supervised Classification
+             Learning Algorithms},
+  journal = {Neural Computation},
+  volume  = {10},
+  number  = {7},
+  pages   = {1895--1923},
+  year    = {1998},
+  doi     = {10.1162/089976698300017197},
+  note    = {Demonstrates elevated Type-I error of naive tests over
+             cross-validation folds; motivates the subject-level bootstrap being
+             the primary test rather than a fold-level t-test}
+}
+
+@article{kapoor2023leakage,
+  author  = {Kapoor, Sayash and Narayanan, Arvind},
+  title   = {Leakage and the reproducibility crisis in machine-learning-based science},
+  journal = {Patterns},
+  volume  = {4},
+  number  = {9},
+  pages   = {100804},
+  year    = {2023},
+  doi     = {10.1016/j.patter.2023.100804},
+  note    = {Documents leakage across 294 studies in 17 fields; motivates the
+             assertion-based leakage prevention used here}
+}
+
+@article{chekroud2024illusory,
+  author  = {Chekroud, Adam M. and Hawrilenko, Matt and Loho, Hieronimus and
+             Bondar, Julia and Gueorguieva, Ralitza and Hasan, Alkomiet and
+             Kambeitz, Joseph and Corlett, Philip R. and Koutsouleris, Nikolaos and
+             Krumholz, Harlan M. and Krystal, John H. and Paulus, Martin},
+  title   = {Illusory generalizability of clinical prediction models},
+  journal = {Science},
+  volume  = {383},
+  number  = {6679},
+  pages   = {164--167},
+  year    = {2024},
+  doi     = {10.1126/science.adg8538},
+  note    = {Even leakage-free internal validation does not guarantee transportability;
+             cited in the limitations}
+}
+
+@article{varoquaux2018crossval,
+  author  = {Varoquaux, Ga{\"e}l},
+  title   = {Cross-validation failure: Small sample sizes lead to large error bars},
+  journal = {NeuroImage},
+  volume  = {180},
+  pages   = {68--77},
+  year    = {2018},
+  doi     = {10.1016/j.neuroimage.2017.06.061},
+  note    = {Basis for the expectation of wide confidence intervals at n = 88}
+}
+
+@book{efron1993bootstrap,
+  author    = {Efron, Bradley and Tibshirani, Robert J.},
+  title     = {An Introduction to the Bootstrap},
+  publisher = {Chapman \& Hall},
+  address   = {New York},
+  year      = {1993},
+  note      = {Basis of the paired subject-level bootstrap used as the primary test}
+}
+
+@article{pedregosa2011sklearn,
+  author  = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and
+             Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and
+             Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and
+             Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and
+             Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and
+             Duchesnay, {\'E}douard},
+  title   = {Scikit-learn: Machine Learning in {Python}},
+  journal = {Journal of Machine Learning Research},
+  volume  = {12},
+  pages   = {2825--2830},
+  year    = {2011}
+}
+
+@article{gramfort2013mne,
+  author  = {Gramfort, Alexandre and Luessi, Martin and Larson, Eric and
+             Engemann, Denis A. and Strohmeier, Daniel and Brodbeck, Christian and
+             Goj, Roman and Jas, Mainak and Brooks, Teon and Parkkonen, Lauri and
+             H{\"a}m{\"a}l{\"a}inen, Matti},
+  title   = {{MEG} and {EEG} data analysis with {MNE-Python}},
+  journal = {Frontiers in Neuroscience},
+  volume  = {7},
+  pages   = {267},
+  year    = {2013},
+  doi     = {10.3389/fnins.2013.00267}
+}
+
+@article{harris2020numpy,
+  author  = {Harris, Charles R. and Millman, K. Jarrod and
+             van der Walt, St{\'e}fan J. and others},
+  title   = {Array programming with {NumPy}},
+  journal = {Nature},
+  volume  = {585},
+  number  = {7825},
+  pages   = {357--362},
+  year    = {2020},
+  doi     = {10.1038/s41586-020-2649-2}
+}
+
+@article{virtanen2020scipy,
+  author  = {Virtanen, Pauli and Gommers, Ralf and Oliphant, Travis E. and others},
+  title   = {{SciPy} 1.0: fundamental algorithms for scientific computing in {Python}},
+  journal = {Nature Methods},
+  volume  = {17},
+  pages   = {261--272},
+  year    = {2020},
+  doi     = {10.1038/s41592-019-0686-2}
+}
+
+% =====================================================================================
+% CLINICAL AND qEEG BACKGROUND
+% =====================================================================================
+
+@article{smailovic2019qeeg,
+  author  = {Smailovic, Una and Jelic, Vesna},
+  title   = {Neurophysiological Markers of {Alzheimer's} Disease: Quantitative {EEG}
+             Approach},
+  journal = {Neurology and Therapy},
+  volume  = {8},
+  number  = {S2},
+  pages   = {37--55},
+  year    = {2019},
+  doi     = {10.1007/s40120-019-00169-0},
+  note    = {Review of spectral slowing as the reproducible qEEG signature of dementia;
+             motivates the band-power feature set}
+}
+
+@article{chetty2024biomarkers,
+  author  = {Chetty, Chandan Aiyyappa and Bhardwaj, Himanshu and
+             Kumar, G. Pradeep and Devanand, T. and Sekhar, C. S. Aswin and
+             Aktürk, Tuba and Kiyi, Ilayda and Y{\i}ld{\i}r{\i}m, Ezgi and
+             Y{\i}lmaz, Hatice and Y{\i}lmaz, G{\"o}rsev},
+  title   = {{EEG} biomarkers in {Alzheimer's} and prodromal {Alzheimer's}: A
+             comprehensive analysis of spectral and connectivity features},
+  journal = {Alzheimer's Research \& Therapy},
+  volume  = {16},
+  number  = {1},
+  pages   = {236},
+  year    = {2024},
+  doi     = {10.1186/s13195-024-01582-w}
+}
+
+@article{gorgolewski2016bids,
+  author  = {Gorgolewski, Krzysztof J. and Auer, Tibor and Calhoun, Vince D. and
+             others},
+  title   = {The brain imaging data structure, a format for organizing and describing
+             outputs of neuroimaging experiments},
+  journal = {Scientific Data},
+  volume  = {3},
+  pages   = {160044},
+  year    = {2016},
+  doi     = {10.1038/sdata.2016.44},
+  note    = {BIDS specification; ds004504 is BIDS-formatted}
+}
