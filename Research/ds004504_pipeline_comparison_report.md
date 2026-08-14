@@ -755,8 +755,18 @@ Full BibTeX in `references.bib`.
 
 ## Appendix B — How to run
 
-1. Upload all four code files to a Google Drive folder named `ds004504_experiment`.
-2. Open `01_author_pipeline_ds004504.ipynb` in Colab; set `MAX_SUBJECTS = 5`; run all.
+**The dataset is downloaded at runtime directly from OpenNeuro.** You do not need to
+obtain it beforehand, and it never needs to be in Google Drive. Only the subjects the
+current run requires are fetched (~60 MB each for raw + derivatives), and downloads are
+idempotent — re-running after a session timeout resumes rather than restarting.
+
+**Google Drive is optional.** It is worth using, because the per-subject cache and all
+result files persist across Colab session timeouts; without it a disconnect means
+reprocessing from scratch. To skip it, set `USE_DRIVE = False` in the first setup cell
+and remember to download your results before the session ends.
+
+1. Open `01_author_pipeline_ds004504.ipynb` in Colab and upload `ds004504_common.py` when the setup cell prompts (or place it in your Drive folder `ds004504_experiment`).
+2. Set `MAX_SUBJECTS = 5` and run all.
 3. If the smoke test passes, set `MAX_SUBJECTS = None` and re-run (caching skips completed subjects).
 4. Run `02_alternative_pipeline_ds004504.ipynb` with the *same* configuration — it verifies this automatically and halts on mismatch.
 5. Run `03_pipeline_comparison_ds004504.ipynb`.

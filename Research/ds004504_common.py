@@ -75,6 +75,9 @@ from sklearn.preprocessing import StandardScaler
 __all__ = [
     "Config",
     "MODULE_VERSION",
+    "DATASET_ACCESSION",
+    "download_metadata",
+    "ensure_dataset",
     "get_environment_info",
     "setup_logging",
     "download_subjects",
@@ -99,7 +102,11 @@ __all__ = [
     "ResourceMonitor",
 ]
 
-MODULE_VERSION = "1.0.0"
+MODULE_VERSION = "1.1.0"
+
+# OpenNeuro accession. Kept as a constant so the download functions and the
+# provenance records can never drift apart.
+DATASET_ACCESSION = "ds004504"
 
 logger = logging.getLogger("ds004504")
 
@@ -428,47 +435,160 @@ class ResourceMonitor:
 # =====================================================================================
 
 
+REQUIRED_METADATA = ["participants.tsv", "dataset_description.json"]
+
+
+def _openneuro_module():
+    """Import openneuro-py, with an actionable message if it is missing."""
+    try:
+        import openneuro  # type: ignore
+        return openneuro
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError(
+            "openneuro-py is required to download the dataset at runtime.\n"
+            "Install with:  pip install openneuro-py"
+        ) from exc
+
+
+def download_metadata(cfg: Config, retries: int = 3) -> Dict[str, Any]:
+    """Fetch only the small top-level metadata files (a few kB).
+
+    This must happen before subject selection, because `participants.tsv` is the
+    authoritative source of the group labels that stratified selection depends on.
+    Downloading it separately means we never need the multi-GB dataset just to find
+    out who the subjects are.
+    """
+    openneuro = _openneuro_module()
+    target = Path(cfg.dataset_path)
+    target.mkdir(parents=True, exist_ok=True)
+
+    report: Dict[str, Any] = {"target": str(target), "errors": [], "attempts": 0}
+    include = ["participants.tsv", "participants.json",
+               "dataset_description.json", "README"]
+
+    for attempt in range(1, retries + 1):
+        report["attempts"] = attempt
+        try:
+            openneuro.download(dataset=DATASET_ACCESSION, target_dir=target,
+                               include=include)
+            break
+        except Exception as exc:
+            report["errors"].append({"attempt": attempt, "error": repr(exc)})
+            logger.warning("Metadata download attempt %d/%d failed: %r",
+                           attempt, retries, exc)
+            if attempt < retries:
+                time.sleep(2 ** attempt)
+
+    # Verify rather than trust: a "successful" call that produced no file is a
+    # failure we want to surface here, not three cells later as a confusing
+    # FileNotFoundError from participants.tsv.
+    missing = [f for f in REQUIRED_METADATA if not (target / f).exists()]
+    report["missing"] = missing
+    report["ok"] = not missing
+    if missing:
+        logger.error("Metadata download incomplete; missing: %s", missing)
+    return report
+
+
 def download_subjects(
     cfg: Config,
     subjects: Optional[Sequence[str]] = None,
     include_derivatives: bool = True,
+    retries: int = 3,
+    allow_full_dataset: bool = False,
 ) -> Dict[str, Any]:
-    """Download only the subjects we need, using `openneuro-py`.
+    """Download only the subjects this run needs, using `openneuro-py`.
 
-    The full dataset is several GB. Downloading per-subject keeps Colab disk usage low
-    and makes the acquisition step restartable: openneuro-py skips files already
-    present, so re-running after a session restart is cheap.
+    The full dataset is several GB. Downloading per-subject keeps Colab disk usage
+    low and makes acquisition restartable: openneuro-py skips files already present,
+    so re-running after a session timeout is cheap.
 
-    Returns a report dict; raises nothing on partial failure -- failures are recorded.
+    `subjects=None` would fetch the ENTIRE dataset, which is almost never what anyone
+    wants on a Colab disk. That now requires `allow_full_dataset=True` so it cannot
+    happen by accident.
+
+    Returns a report dict. Per-subject failures are recorded, not raised, so that one
+    bad subject does not abort a long batch -- but the report is verified against the
+    filesystem so silent failures cannot pass as success.
     """
-    try:
-        import openneuro  # type: ignore
-    except ImportError as exc:  # pragma: no cover
-        raise ImportError(
-            "openneuro-py is required. Install with: pip install openneuro-py"
-        ) from exc
+    # Validate arguments BEFORE touching imports, so a misuse is reported as a misuse
+    # rather than being masked by a missing-package error.
+    if not subjects:
+        if not allow_full_dataset:
+            raise ValueError(
+                "download_subjects() called with no subject list. That would download "
+                "the entire multi-GB dataset.\n"
+                "Pass an explicit `subjects=[...]` list, or set "
+                "allow_full_dataset=True if you really mean it."
+            )
+        subjects = []
 
+    openneuro = _openneuro_module()
     target = Path(cfg.dataset_path)
     target.mkdir(parents=True, exist_ok=True)
 
-    # Always fetch the small top-level metadata files.
     include: List[str] = []
-    if subjects is not None:
-        for sub in subjects:
-            include.append(f"{sub}/")
-            if include_derivatives:
-                include.append(f"derivatives/{sub}/")
+    for sub in subjects:
+        include.append(f"{sub}/")
+        if include_derivatives:
+            include.append(f"derivatives/{sub}/")
 
-    report: Dict[str, Any] = {"target": str(target), "requested": list(subjects or []), "errors": []}
+    report: Dict[str, Any] = {
+        "target": str(target),
+        "requested": list(subjects),
+        "errors": [],
+        "attempts": 0,
+    }
 
     with ResourceMonitor("download") as rm:
-        try:
-            openneuro.download(dataset="ds004504", target_dir=target,
-                               include=include if include else None)
-        except Exception as exc:
-            report["errors"].append({"stage": "download", "error": repr(exc)})
-            logger.error("Download failed: %r", exc)
+        for attempt in range(1, retries + 1):
+            report["attempts"] = attempt
+            try:
+                openneuro.download(dataset=DATASET_ACCESSION, target_dir=target,
+                                   include=include if include else None)
+                break
+            except Exception as exc:
+                report["errors"].append({"stage": "download", "attempt": attempt,
+                                         "error": repr(exc)})
+                logger.warning("Download attempt %d/%d failed: %r",
+                               attempt, retries, exc)
+                if attempt < retries:
+                    time.sleep(2 ** attempt)
     report["timing"] = rm.result
+
+    # Verify what actually landed on disk, per subject.
+    present, absent = [], []
+    for sub in subjects:
+        if list((target / sub).rglob("*.set")) or list((target / sub).rglob("*.edf")):
+            present.append(sub)
+        else:
+            absent.append(sub)
+    report["downloaded"] = present
+    report["missing"] = absent
+    report["ok"] = not absent
+    if absent:
+        logger.error("No EEG file found after download for: %s", absent)
+    return report
+
+
+def ensure_dataset(cfg: Config, subjects: Sequence[str],
+                   include_derivatives: bool = True) -> Dict[str, Any]:
+    """Download any of `subjects` not already on disk, then verify all are present.
+
+    Idempotent: safe to re-run. This is the function to call at the top of a batch.
+    """
+    target = Path(cfg.dataset_path)
+    needed = [s for s in subjects
+              if not (list((target / s).rglob("*.set")) or list((target / s).rglob("*.edf")))]
+    if not needed:
+        logger.info("All %d subjects already present on disk.", len(subjects))
+        return {"target": str(target), "requested": list(subjects),
+                "downloaded": [], "missing": [], "ok": True,
+                "already_present": list(subjects), "errors": []}
+
+    logger.info("%d/%d subjects missing; downloading.", len(needed), len(subjects))
+    report = download_subjects(cfg, needed, include_derivatives=include_derivatives)
+    report["already_present"] = [s for s in subjects if s not in needed]
     return report
 
 
